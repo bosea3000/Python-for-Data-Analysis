@@ -78,7 +78,7 @@ def heatmap(data):
     mask[np.triu_indices_from(mask)] = True
     figure, ax = plt.subplots(figsize=(12,9))
     with sns.axes_style('white'):
-        ax = sns.heatmap(dfcorr, mask=mask, vmin=-1, vmax=1, square=True, annot=True, cmap='Blues', center=0)
+        ax = sns.heatmap(dfcorr, mask=mask, vmin=0, vmax=1, square=True, annot=True, cmap='Blues', center=0.5)
     return ax
 
 def pairwise(data):
@@ -90,11 +90,11 @@ def pairwise(data):
 #Encode Score-to-NPS Category (Apply function)
 def scoretoNPSCat(x):
     if x > 8:
-        return "Promoter"
+        return "1.Promoter"
     elif x > 6:
-        return "Passive"
+        return "0.Passive"
     else:
-        return "Detractor"
+        return "2.Detractor"
 
 #Encode Score-to-NPS-Modified Category (Apply function)
 def scoretoNPSCat_Modified(x):
