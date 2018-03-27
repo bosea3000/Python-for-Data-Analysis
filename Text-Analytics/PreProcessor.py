@@ -1,5 +1,6 @@
 #Import relevant libraries
 import os
+import sys
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -11,10 +12,23 @@ from sklearn.preprocessing import Imputer
 
 ############################## LOADFILE-FUNCTIONS ##############################
 
-#Load File in Chunks Function
-def chunkLoad(dta_filename):
-    ...
-    return
+#Load File(Stata File .dta) in Chunks Function
+def chunkLoad(filename):
+    reader = pd.stata_reader(filename, iterator=True)
+    df = pd.DataFrame()
+
+    try:
+        chunk = reader.get_chunk(100*1000)
+        while len(chunk) > 0:
+            df = df.append(chunk, ignore_index=True)
+            chunk = reader.get_chunk(100*1000)
+            print(".")
+            sys.stdout.flush()
+    except (StopIteration, KeyboardInterrupt):
+        pass
+
+    print("\nLoaded {} rows".format(len(df)))
+    return df
 
 #Load File from Stata-Format
 def stataLoad(dta_filename):
@@ -82,8 +96,9 @@ def heatmap(data):
     return ax
 
 def pairwise(data):
-    ...
-    return
+    sns.set(style="ticks", color_codes=True)
+    g = sns.pairplot(data)
+    return g
 
 ############################# CATEGORIZE-FUNCTIONS #############################
 
@@ -102,3 +117,14 @@ def scoretoNPSCat_Modified(x):
         return "Promoter"
     else:
         return "Non-Promoter"
+
+def pr_categorize(data, features_to_cat):
+    for col in features_to_cat:
+        data[col+'-CAT'] = data[col].apply(scoretoNPSCat)
+    return data
+
+################################## SPLIT DATA ##################################
+
+def splitTargetFeatures(data, target, features):
+    ...
+    return
