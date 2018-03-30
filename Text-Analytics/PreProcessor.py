@@ -80,8 +80,9 @@ def imputeData(data, method):
     imputedData = pd.DataFrame(imputedData)
     imputedData.columns = data.columns
 
-    # imputedData_missingdf = missingSummary(imputedData)
-    return round(imputedData,0)
+    imputedData_missingdf = missingSummary(imputedData)
+    print('Dataset has been imputed using {} method specified.'.format(method))
+    return round(imputedData,0), imputedData_missingdf
 
 ############################## CORRELATION PLOTS ###############################
 
@@ -121,6 +122,7 @@ def scoretoNPSCat_Modified(x):
 def pr_categorize(data, features_to_cat):
     for col in features_to_cat:
         data[col+'-CAT'] = data[col].apply(scoretoNPSCat)
+    print('All features have been categorized')
     return data
 
 ################################## SPLIT DATA ##################################
