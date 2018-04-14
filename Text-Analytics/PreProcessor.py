@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from fancyimpute import KNN
 from pandas.io.stata import StataReader
 from sklearn.preprocessing import Imputer
+from sklearn.model_selection import train_test_split
 
 ############################## LOADFILE-FUNCTIONS ##############################
 
@@ -34,6 +35,7 @@ def chunkLoad(filename):
 def stataLoad(dta_filename):
     reader = StataReader(dta_filename)
     data = reader.data()
+    print("\nLoaded {} rows".format(len(data)))
     return data
 
 ############################ MANIPULATION-FUNCTIONS ############################
@@ -58,7 +60,7 @@ def cleanData(rawdata, missingdf, col_cutoff, row_cutoff):
     cleanedData.drop(cols_to_drop, axis=1, inplace=True)
     cleanedData.dropna(subset=rows_to_drop, how='any', inplace=True)
     cleanedData_missingdf = missingSummary(cleanedData)
-
+    print('Dataset has been cleaned.')
     return cleanedData, cleanedData_missingdf
 
 #Imputation Funtion
@@ -127,6 +129,13 @@ def pr_categorize(data, features_to_cat):
 
 ################################## SPLIT DATA ##################################
 
-def splitTargetFeatures(data, target, features):
-    ...
-    return
+def splitTargetFeatures(data, target_name, features_name):
+    target = data[[target_name]]
+    features = data.drop(target_name, axis=1)
+    features = features[[features_name]]
+    print('Target and features are now separated')
+    return target, features
+
+def train_test_split_fx(x, y):
+    x_train, x_test, y_train, y_test = train_test_split(x,y)
+    return x_train, x_test, y_train, y_test
