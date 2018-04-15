@@ -38,6 +38,14 @@ def stataLoad(dta_filename):
     print("\nLoaded {} rows".format(len(data)))
     return data
 
+def rename_cols(data):
+    col_list = []
+    for col_name in list(data.columns):
+        col_name = col_name.replace(" ", "_")
+        col_list.append(col_name)
+    data.columns = col_list
+    return data
+
 ############################ MANIPULATION-FUNCTIONS ############################
 
 #Missing Summary Function
@@ -68,23 +76,23 @@ def cleanData(rawdata, missingdf, col_cutoff, row_cutoff):
     #Returns Imputed_DataFrame + Missing Summary of Imputed_DataFrame
 def imputeData(data, method):
     if method in ('bfill', 'ffill'):
-        imputedData = data.fillna(method=method, axis=1, inplace=False)
+        imputed_data = data.fillna(method=method, axis=1)
     elif method in ('value'):
-        value = int(input('Enter scalar value: '))
-        imputedData = data.fillna(value=value, axis=1, inplace=False)
+        scalar_val = int(input('Enter imputation value: '))
+        imputed_data = data.fillna(value=scalar_val, axis=1)
     elif method in ('mean', 'median', 'most_frequent'):
-        imp = Imputer(missing_values = np.NaN, strategy=method, axis=0, copy=True)
-        imputedData = imp.fit_transform(data)
+        imputer = Imputer(missing_values='NaN', strategy=method, axis=0)
+        imputed_data = imputer.fit_transform(data)
     else:
         nn = int(input('Enter number of nearest neighbors: '))
-        imputedData = KNN(k=nn).complete(data)
+        imputed_data = KNN(nn).complete(data)
 
-    imputedData = pd.DataFrame(imputedData)
-    imputedData.columns = data.columns
+    imputed_data_frame = pd.DataFrame(imputed_data)
+    imputed_data_frame.columns = data.columns
+    imputed_data_frame.index = data.index
 
-    imputedData_missingdf = missingSummary(imputedData)
-    print('Dataset has been imputed using {} method specified.'.format(method))
-    return round(imputedData,0), imputedData_missingdf
+    missing_imputed = missingSummary(imputed_data_frame)
+    return round(imputed_data_frame,2), missing_imputed
 
 ############################## CORRELATION PLOTS ###############################
 
@@ -123,7 +131,7 @@ def scoretoNPSCat_Modified(x):
 
 def pr_categorize(data, features_to_cat):
     for col in features_to_cat:
-        data[col+'-CAT'] = data[col].apply(scoretoNPSCat)
+        data[col+'_CAT'] = data[col].apply(scoretoNPSCat)
     print('All features have been categorized')
     return data
 
@@ -132,10 +140,11 @@ def pr_categorize(data, features_to_cat):
 def splitTargetFeatures(data, target_name, features_name):
     target = data[[target_name]]
     features = data.drop(target_name, axis=1)
-    features = features[[features_name]]
+    features = features[features_name]
     print('Target and features are now separated')
     return target, features
 
-def train_test_split_fx(x, y):
-    x_train, x_test, y_train, y_test = train_test_split(x,y)
+def train_test_split_fx(x, y, train_limit):
+    x_train, x_test, y_train, y_test = train_test_split(x,y, test_size=train_limit)
+    print('Data has been split into training and test sets')
     return x_train, x_test, y_train, y_test
