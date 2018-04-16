@@ -1,12 +1,12 @@
 import pandas as pd
-import matplotlib as plt
+import matplotlib.pyplot as plt
 %matplotlib inline
 
 import PreProcessor
 import Modeler
 import importlib
 
-importlib.reload(PreProcessor)
+importlib.reload(Modeler)
 
 #---------------------------------PreProcessor---------------------------------#
 #Load data
@@ -23,7 +23,7 @@ missing_clean
 data_impute, missing_impute = PreProcessor.imputeData(data_clean, 'KNN')
 missing_impute
 
-#Catergorize data
+#Catergorize data - for Penalty Rewards Analysis
 features_to_cat = list(['Internet_quality', 'Ease_of_making_reservation','Attitude_of_hotel_staff', 'Cleanliness_of_room', 'Quietness_of_room',
        'Breakfast_quality', 'Cleanliness_of_bathroom', 'Bar_ambiance','Accuracy_of_bill'])
 data_impute_copy = data_impute.copy()
@@ -38,15 +38,13 @@ x_train, x_test, y_train, y_test = PreProcessor.train_test_split_fx(target, feat
 
 #------------------------------------------------------------------------------#
 #-----------------------------------Modeling-----------------------------------#
-
-#Key Driver Analysis
+#Key Driver Analysis - OLS
 all_cols = ' + '.join(data_impute.columns.drop('Overall_Experience'))
 formula = 'Overall_Experience ~ ' + all_cols
 lm_results, r2 = Modeler.lin_reg_formula(formula, data_impute)
-r2
-lm_results
+Modeler.data_to_excel(lm_results, 'Results_KD_OSAT.xlsx')
 
-
+#------------------------------------------------------------------------------#
 #Penalty Rewards Analysis
 features_dummy = []
 for feature in features_to_cat:
@@ -55,5 +53,5 @@ for feature in features_to_cat:
 all_cols = ' + '.join(features_dummy)
 formula = 'Overall_Experience ~ ' + all_cols
 pr_results, pr_r2 = Modeler.lin_reg_formula(formula, data_categorized)
-r2
-pr_results
+
+#------------------------------------------------------------------------------#
